@@ -1,7 +1,6 @@
 {
     "name": "marqu3s/yii2-behaviors",
     "description": "Colletion of Yii2 behaviors",
-    "version": "0.1.0",
     "type": "yii2-behavior",
     "keywords": [
         "yii2",
