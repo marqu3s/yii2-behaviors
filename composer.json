@@ -1,0 +1,37 @@
+{
+    "name": "marqu3s/yii2-behaviors",
+    "description": "Colletion of Yii2 behaviors",
+    "version": "0.1.0",
+    "type": "yii2-behavior",
+    "keywords": [
+        "yii2",
+        "behavior",
+    ],
+    "homepage": "https://github.com/marqu3s/yii2-behaviors",
+    "time": "2016-01-18",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joao Marques",
+            "email": "joao@jjmf.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/marqu3s/yii2-behaviors"
+    },
+    "require": {
+        "yiisoft/yii2": "~2",
+    },
+    "autoload": {
+        "psr-4": {
+            "marqu3s\\behaviors\\": ""
+        }
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    }
+}
