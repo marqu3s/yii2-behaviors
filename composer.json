@@ -5,7 +5,7 @@
     "type": "yii2-behavior",
     "keywords": [
         "yii2",
-        "behavior",
+        "behavior"
     ],
     "homepage": "https://github.com/marqu3s/yii2-behaviors",
     "time": "2016-01-18",
@@ -21,7 +21,7 @@
         "source": "https://github.com/marqu3s/yii2-behaviors"
     },
     "require": {
-        "yiisoft/yii2": "~2",
+        "yiisoft/yii2": "~2"
     },
     "autoload": {
         "psr-4": {
