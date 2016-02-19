@@ -34,7 +34,7 @@ use yii\db\BaseActiveRecord;
  *         'query' => $query,
  *         'sort' => ...,
  *         'pagination' => [
- *             'page' => $this->getGridPage(),
+ *             'page' => $this->getGridPage(), // <- Prefered method
  *             ...
  *         ]
  *     ]
