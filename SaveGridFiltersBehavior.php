@@ -26,7 +26,7 @@ use yii\db\BaseActiveRecord;
  * }
  * ```
  *
- * Then, on yout search() method, replace $this->load() by $this->loadWithFilters():
+ * Then, on yout search() method, replace $this->load() by $dataProvider = $this->loadWithFilters($params, $dataProvider):
  *
  * ```
  * $dataProvider = new ActiveDataProvider(
@@ -39,7 +39,7 @@ use yii\db\BaseActiveRecord;
  *         ]
  *     ]
  * );
- * //$this->load($params); // <-- Remove or comment this and insert the line bellow.
+ * //$this->load($params); // <-- Replace or comment this
  * $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
  * ```
  *
@@ -54,6 +54,9 @@ class SaveGridFiltersBehavior extends Behavior
 
     /** @var string default session variable name */
     public $sessionVarName = 'gridFilter';
+
+    /** @var bool control to check if filter values changed */
+    private $filtersChanged = false;
 
     /**
      * Define the short class name of the model in use.
@@ -87,6 +90,9 @@ class SaveGridFiltersBehavior extends Behavior
 
         $params = Yii::$app->request->queryParams;
         if (isset($params[$this->modelShortClassName])) {
+            # Check if the filter values changed
+            $diff = array_diff_assoc(Yii::$app->session[$this->sessionVarName], $params[$this->modelShortClassName]);
+            if (!empty($diff)) $this->filtersChanged = true;
             Yii::$app->session[$this->sessionVarName] = $params[$this->modelShortClassName];
         }
     }
@@ -106,7 +112,20 @@ class SaveGridFiltersBehavior extends Behavior
 
         if (isset($params[$this->modelShortClassName])) {
             $this->owner->load($params);
-            $dataProvider->pagination->page = 0; // reset pagination to first page when applying new filters
+
+            if ($this->filtersChanged) {
+                $dataProvider->pagination->page = 0; // reset pagination to first page when applying new filters
+
+                # Check if owner is using SaveGridPaginationBehavior.
+                # If it is, reset the current page stored in session by SaveGridPaginationBehavior,
+                $behaviors = $this->owner->getBehaviors();
+                foreach ($behaviors as $behavior) {
+                    if (get_class($behavior) == 'marqu3s\behaviors\SaveGridPaginationBehavior') {
+                        Yii::$app->session[$behavior->sessionVarName] = $dataProvider->pagination->page;
+                        break;
+                    }
+                }
+            }
         } else {
             $this->owner->load([$this->modelShortClassName => Yii::$app->session[$this->sessionVarName]]);
         }
