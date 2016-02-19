@@ -3,8 +3,6 @@
 namespace marqu3s\behaviors;
 
 use Yii;
-use yii\base\Behavior;
-use yii\db\BaseActiveRecord;
 
 /**
  * Saves the Grid's current page in PHP Session on a new page request
@@ -34,7 +32,7 @@ use yii\db\BaseActiveRecord;
  *         'query' => $query,
  *         'sort' => ...,
  *         'pagination' => [
- *             'page' => $this->getGridPage(), // <- Prefered method
+ *             'page' => $this->getGridPage(),
  *             ...
  *         ]
  *     ]
@@ -49,13 +47,10 @@ use yii\db\BaseActiveRecord;
  *
  * @author Joao Marques <joao@jjmf.com>
  */
-class SaveGridPaginationBehavior extends Behavior
+class SaveGridPaginationBehavior extends MarquesBehavior
 {
     /** @var string default $_GET parameter name */
     public $getVarName = 'page';
-
-    /** @var string default session variable name */
-    public $sessionVarName = 'gridPage';
 
     /**
      * @inheritdoc
@@ -63,7 +58,7 @@ class SaveGridPaginationBehavior extends Behavior
     public function events()
     {
         return [
-            BaseActiveRecord::EVENT_INIT => [$this, 'saveGridPage'],
+            \yii\db\BaseActiveRecord::EVENT_INIT => [$this, 'saveGridPage'],
         ];
     }
 
