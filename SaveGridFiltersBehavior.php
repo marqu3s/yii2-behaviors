@@ -3,8 +3,6 @@
 namespace marqu3s\behaviors;
 
 use Yii;
-use yii\base\Behavior;
-use yii\db\BaseActiveRecord;
 
 /**
  * Saves the Grid's current filters in PHP Session on every request
@@ -47,13 +45,10 @@ use yii\db\BaseActiveRecord;
  *
  * @author Joao Marques <joao@jjmf.com>
  */
-class SaveGridFiltersBehavior extends Behavior
+class SaveGridFiltersBehavior extends MarquesBehavior
 {
     /** @var string the model class name without namespace. Used to detect filter values in $_GET['ModelClassName']. */
     public $modelShortClassName;
-
-    /** @var string default session variable name */
-    public $sessionVarName = 'gridFilter';
 
     /** @var bool control to check if filter values changed */
     private $filtersChanged = false;
@@ -73,7 +68,7 @@ class SaveGridFiltersBehavior extends Behavior
     public function events()
     {
         return [
-            BaseActiveRecord::EVENT_INIT => [$this, 'saveGridFilters'],
+            \yii\db\BaseActiveRecord::EVENT_INIT => [$this, 'saveGridFilters'],
         ];
     }
 
