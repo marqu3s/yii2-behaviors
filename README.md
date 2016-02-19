@@ -19,7 +19,7 @@ to the require section of your composer.json file.
 ## Available Behaviors
 
 ### SaveGridPaginationBehavior
-Saves the Grid's current page in PHP Session so you can restore it later automatically when revisiting the page where the grid is.
+Saves the grid's current page in PHP Session so you can restore it later automatically when revisiting the page where the grid is.
 
 Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
 
@@ -35,7 +35,7 @@ public function behaviors()
 }
 ```
 
-Then, on yout search() method, set the grid current page using one of these:
+Then, on your search() method, set the grid current page using one of these:
 
 ```php
 $dataProvider = new ActiveDataProvider(
@@ -43,7 +43,7 @@ $dataProvider = new ActiveDataProvider(
     'query' => $query,
     'sort' => ...,
     'pagination' => [
-      'page' => $this->getGridPage(),
+      'page' => $this->getGridPage(), // <- Prefered method
       ...
     ]
   ]
@@ -56,5 +56,39 @@ OR
 $dataProvider->pagination->page = $this->getGridPage();
 ```
 
-That's all!
+### SaveGridFiltersBehavior
+Saves the Grid's current filters in PHP Session on every request and use [[loadWithFilters()]] to get the current filters and assign it to the grid.
 
+Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
+
+```php
+public function behaviors()
+{
+  return [
+    'saveGridFilters' =>[
+      'class' => SaveGridFiltersBehavior::className(),
+      'sessionVarName' => self::className() . 'GridFilters'
+    ]
+  ];
+}
+```
+
+Then, on your search() method, replace $this->load() by $dataProvider = $this->loadWithFilters($params, $dataProvider):
+
+```php
+$dataProvider = new ActiveDataProvider(
+  [
+    'query' => $query,
+    'sort' => ...,
+    'pagination' => [
+      'page' => $this->getGridPage(), // <- Prefered method
+      ...
+    ]
+  ]
+);
+
+//$this->load($params); // <-- Replace or comment this
+$dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
+```
+
+That's all!
