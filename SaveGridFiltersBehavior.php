@@ -39,8 +39,8 @@ use yii\db\BaseActiveRecord;
  *         ]
  *     ]
  * );
- * //$this->load($params); // <-- Replace or comment this
- * $this->loadWithFilters($params); // From SaveGridFiltersBehavior
+ * //$this->load($params); // <-- Remove or comment this and insert the line bellow.
+ * $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
  * ```
  *
  * That's all!
