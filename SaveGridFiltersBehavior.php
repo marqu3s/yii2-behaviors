@@ -80,7 +80,7 @@ class SaveGridFiltersBehavior extends MarquesBehavior
         $this->defineModelShortClassName();
 
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
-            Yii::$app->session[$this->sessionVarName] = [];
+            Yii::$app->session[$this->sessionVarName] = $this->owner->attributes;
         }
 
         $params = Yii::$app->request->queryParams;
