@@ -5,7 +5,7 @@
 The preferred way to install this extension is through [composer](http://composer.org). Either run:
 
 ```
-php composer.phar require --prefer-dist marqu3s/yii2-behaviors
+php composer.phar require --prefer-dist marqu3s/yii2-behaviors "*"
 ```
 
 or add
