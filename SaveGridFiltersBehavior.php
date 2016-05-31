@@ -86,8 +86,7 @@ class SaveGridFiltersBehavior extends MarquesBehavior
         $params = Yii::$app->request->queryParams;
         if (isset($params[$this->modelShortClassName])) {
             # Check if the filter values changed
-            $diff = array_diff_assoc(Yii::$app->session[$this->sessionVarName], $params[$this->modelShortClassName]);
-            if (!empty($diff)) $this->filtersChanged = true;
+            $this->filtersChanged = serialize(Yii::$app->session[$this->sessionVarName]) !== serialize($params[$this->modelShortClassName]) ? true : false;
             Yii::$app->session[$this->sessionVarName] = $params[$this->modelShortClassName];
         }
     }
