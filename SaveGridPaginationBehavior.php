@@ -82,7 +82,7 @@ class SaveGridPaginationBehavior extends MarquesBehavior
             Yii::$app->session[$this->sessionVarName] = (int)Yii::$app->request->get($this->getVarName) - 1;
         }
         if (Yii::$app->request->get($this->getPageSizeName) !== null)
-            Yii::$app->session[$this->sessionPageSizeName] = (int)Yii::$app->request->get($this->getPageSizeName) - 1;
+            Yii::$app->session[$this->sessionPageSizeName] = (int)Yii::$app->request->get($this->getPageSizeName);
     }
 
     /**
