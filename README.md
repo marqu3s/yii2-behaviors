@@ -19,7 +19,7 @@ to the require section of your composer.json file.
 ## Available Behaviors
 
 ### SaveGridPaginationBehavior
-Saves the grid's current page in PHP Session so you can restore it later automatically when revisiting the page where the grid is.
+Saves the grid's current page and pageSize in PHP Session so you can restore it later automatically when revisiting the page where the grid is.
 
 Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
 
@@ -29,7 +29,8 @@ public function behaviors()
   return [
     'saveGridPage' =>[
       'class' => SaveGridPaginationBehavior::className(),
-      'sessionVarName' => self::className() . 'GridPage'
+      'sessionVarName' => self::className() . 'GridPage',
+      'sessionPageSizeName' => self::className() . 'GridPageSize'
     ]
   ];
 }
@@ -44,6 +45,7 @@ $dataProvider = new ActiveDataProvider(
     'sort' => ...,
     'pagination' => [
       'page' => $this->getGridPage(), // <- Prefered method
+      'pageSize' => $this->getGridPageSize(),
       ...
     ]
   ]
@@ -82,6 +84,7 @@ $dataProvider = new ActiveDataProvider(
     'sort' => ...,
     'pagination' => [
       'page' => $this->getGridPage(), // <- Prefered method
+      'pageSize' => $this->getGridPageSize(),
       ...
     ]
   ]

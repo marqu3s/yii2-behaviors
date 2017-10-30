@@ -9,6 +9,8 @@ use Yii;
  * and use [[getPage()]] to get the current page and assign it
  * to the Pagination configuration.
  *
+ * Saves also the pageSize
+ *
  * Usage: On the model that will be used to generate the dataProvider
  * that will populate the grid, attach this behavior.
  *
@@ -19,6 +21,7 @@ use Yii;
  *         'saveGridPage' =>[
  *             'class' => SaveGridPaginationBehavior::className(),
  *             'sessionVarName' => self::className() . 'GridPage'
+ *             'sessionPageSizeName' => self::className() . 'GridPageSize'
  *         ]
  *     ];
  * }
@@ -33,6 +36,7 @@ use Yii;
  *         'sort' => ...,
  *         'pagination' => [
  *             'page' => $this->getGridPage(),
+ *             'pageSize' => $this->getGridPageSize(),
  *             ...
  *         ]
  *     ]
@@ -51,6 +55,7 @@ class SaveGridPaginationBehavior extends MarquesBehavior
 {
     /** @var string default $_GET parameter name */
     public $getVarName = 'page';
+    public $getPageSizeName = 'per-page';
 
     /**
      * @inheritdoc
@@ -70,10 +75,14 @@ class SaveGridPaginationBehavior extends MarquesBehavior
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
             Yii::$app->session[$this->sessionVarName] = 0;
         }
+        if (!isset(Yii::$app->session[$this->sessionPageSizeName]))
+            Yii::$app->session[$this->sessionPageSizeName] = 10;
 
         if (Yii::$app->request->get($this->getVarName) !== null) {
             Yii::$app->session[$this->sessionVarName] = (int)Yii::$app->request->get($this->getVarName) - 1;
         }
+        if (Yii::$app->request->get($this->getPageSizeName) !== null)
+            Yii::$app->session[$this->sessionPageSizeName] = (int)Yii::$app->request->get($this->getPageSizeName);
     }
 
     /**
@@ -83,4 +92,13 @@ class SaveGridPaginationBehavior extends MarquesBehavior
     {
         return Yii::$app->session[$this->sessionVarName];
     }
+
+    /**
+     * Return the grid's page size that was saved before.
+     */
+    public function getGridPageSize()
+    {
+        return Yii::$app->session[$this->sessionPageSizeName];
+    }
+
 }
