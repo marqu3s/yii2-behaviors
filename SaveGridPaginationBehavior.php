@@ -53,9 +53,28 @@ use Yii;
  */
 class SaveGridPaginationBehavior extends MarquesBehavior
 {
-    /** @var string default $_GET parameter name */
+    /** @var string default $_GET parameter name for the page to be loaded. */
     public $getVarName = 'page';
+
+    /** @var string default $_GET parameter name for the items per page to be shown. */
     public $getPageSizeName = 'per-page';
+
+    /** @var string default $_SESSION variable name to store the quantity of items per page. */
+    public $sessionPageSizeName = '';
+
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        # Set a default sessionPageSizeName value.
+        if (empty($this->sessionPageSizeName)) {
+            $this->sessionPageSizeName = $this->sessionVarName . '-per-page';
+        }
+    }
 
     /**
      * @inheritdoc
