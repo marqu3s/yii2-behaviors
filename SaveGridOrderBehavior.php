@@ -28,15 +28,32 @@ use Yii;
  * $dataProvider->sort->attributeOrders = GenLib::convertGridSort($this->getGridOrder());
  * ```
  *
- * Il criterio di ordinamento viene gestito come stringa nella forma utilizzata
- * dal GET: "campo1,-campo2". La stringa restituita va poi convertita in array
- * (MiaLib.converteGridSort) per poter essere inserita in "sort->attributeOrders".
+ * The order criteria is managed as a string in the format used by $_GET: "field1,-field2";
+ * So, before applying in the dataProvider, you must convert in array format as required
+ * by the "sort->attributeOrders" property. This is the function needed for this:
+ * 
+ * ```
+ *    public static function convertGridSort($criteria) {
+ *       $fields = explode(',', $criteria);
+ *       $output = [];
+ *       foreach ($fields as $field) {
+ *           if (substr($field, 0, 1) == '-') {
+ *               $field = substr($field, 1);
+ *               $order = SORT_DESC;
+ *           } else {
+ *               $order = SORT_ASC;
+ *           }
+ *           $output[$field] = $order;
+ *       }
+ *       return $output;
+ *   }
+ * ```
  *
  * @author Peppe Dantini
  */
 class SaveGridOrderBehavior extends MarquesBehavior {
 
-    /** @var string Nome del parametro utilizzato in $_GET */
+    /** @var string default $_GET parameter name */
     public $getVarName = 'sort';
 
     /**
@@ -49,7 +66,7 @@ class SaveGridOrderBehavior extends MarquesBehavior {
     }
 
     /**
-     * Salva il criterio di ordinamento corrente
+     * Saves the grid's current order criteria.
      */
     public function saveGridOrder() {
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
@@ -62,7 +79,7 @@ class SaveGridOrderBehavior extends MarquesBehavior {
     }
 
     /**
-     * Restituisce il criterio di ordinamento salvato precedentemente
+     * Return the grid's current order criteria that was saved before.
      */
     public function getGridOrder() {
         return Yii::$app->session[$this->sessionVarName];
