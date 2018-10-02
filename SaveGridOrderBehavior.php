@@ -5,14 +5,34 @@ namespace marqu3s\behaviors;
 use Yii;
 
 /**
- * Salva l'ordinamento corrente della grid nelle variabili di sessione.
- * Basato sull'estensione "yii2-behaviors" di Joao Marques <joao@jjmf.com>
- * https://www.yiiframework.com/extension/yii2-behaviors
- * https://github.com/marqu3s/yii2-behaviors
+ * Saves the Grid's current order criteria in PHP Session.
+ *
+ * Usage: On the model that will be used to generate the dataProvider
+ * that will populate the grid, attach this behavior.
+ *
+ * ```
+ * public function behaviors()
+ * {
+ *     return [
+ *         'saveGridOrder' =>[
+ *             'class' => SaveGridOrderBehavior::className(),
+ *             'sessionVarName' => self::className() . 'GridOrder'
+ *         ]
+ *     ];
+ * }
+ * ```
  * 
+ * Then, on yout search() method, set the grid current order using one of these:
+ *
+ * ```
+ * $dataProvider->sort->attributeOrders = GenLib::convertGridSort($this->getGridOrder());
+ * ```
+ *
  * Il criterio di ordinamento viene gestito come stringa nella forma utilizzata
  * dal GET: "campo1,-campo2". La stringa restituita va poi convertita in array
  * (MiaLib.converteGridSort) per poter essere inserita in "sort->attributeOrders".
+ *
+ * @author Peppe Dantini
  */
 class SaveGridOrderBehavior extends MarquesBehavior {
 
