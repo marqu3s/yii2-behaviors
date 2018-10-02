@@ -22,14 +22,14 @@ use Yii;
  * }
  * ```
  * 
- * Then, on yout search() method, set the grid current order using one of these:
+ * Then, on yout search() method, set the grid current order using these code:
  *
  * ```
  * $dataProvider->sort->attributeOrders = GenLib::convertGridSort($this->getGridOrder());
  * ```
  *
  * The order criteria is managed as a string in the format used by $_GET: "field1,-field2";
- * So, before applying in the dataProvider, you must convert in array format as required
+ * So, before applying to the dataProvider, you must convert in array format as required
  * by the "sort->attributeOrders" property. This is the function needed for this:
  * 
  * ```
