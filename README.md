@@ -94,4 +94,48 @@ $dataProvider = new ActiveDataProvider(
 $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
 ```
 
+### SaveGridOrderBehavior
+Saves the Grid's current order criteria in PHP Session.
+
+Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
+
+```php
+ public function behaviors()
+ {
+     return [
+         'saveGridOrder' =>[
+             'class' => SaveGridOrderBehavior::className(),
+             'sessionVarName' => self::className() . 'GridOrder'
+         ]
+     ];
+ }
+ ```
+ 
+ Then, on yout search() method, set the grid current order using these code:
+
+ ```
+ $dataProvider->sort->attributeOrders = GenLib::convertGridSort($this->getGridOrder());
+ ```
+
+ The order criteria is managed as a string in the format used by $_GET: "field1,-field2";
+ So, before applying to the dataProvider, you must convert in array format as required
+ by the "sort->attributeOrders" property. This is the function needed for this:
+ 
+ ```
+    public static function convertGridSort($criteria) {
+       $fields = explode(',', $criteria);
+       $output = [];
+       foreach ($fields as $field) {
+           if (substr($field, 0, 1) == '-') {
+               $field = substr($field, 1);
+               $order = SORT_DESC;
+           } else {
+               $order = SORT_ASC;
+           }
+           $output[$field] = $order;
+       }
+       return $output;
+   }
+ ```
+
 That's all!
