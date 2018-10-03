@@ -1,5 +1,5 @@
 {
-    "name": "marqu3s/yii2-behaviors",
+    "name": "ghpeppe/yii2-behaviors",
     "description": "Collection of Yii2 behaviors",
     "type": "yii2-behavior",
     "keywords": [
@@ -17,14 +17,14 @@
         }
     ],
     "support": {
-        "source": "https://github.com/marqu3s/yii2-behaviors"
+        "source": "https://github.com/ghpeppe/yii2-behaviors"
     },
     "require": {
         "yiisoft/yii2": "~2"
     },
     "autoload": {
         "psr-4": {
-            "marqu3s\\behaviors\\": ""
+            "ghpeppe\\behaviors\\": ""
         }
     },
     "extra": {
