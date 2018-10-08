@@ -114,26 +114,7 @@ public function behaviors()
 Then, on yout search() method, set the grid current order using these code:
 
 ```php
-$dataProvider->sort->attributeOrders = GenLib::convertGridSort($this->getGridOrder());
-```
-
-The order criteria is managed as a string in the format used by $_GET: "field1,-field2"; so, before applying to the dataProvider, you must convert in array format as required by the "sort->attributeOrders" property. This is the function needed for this:
-
-```php
-   public static function convertGridSort($criteria) {
-      $fields = explode(',', $criteria);
-      $output = [];
-      foreach ($fields as $field) {
-          if (substr($field, 0, 1) == '-') {
-              $field = substr($field, 1);
-              $order = SORT_DESC;
-          } else {
-              $order = SORT_ASC;
-          }
-          $output[$field] = $order;
-      }
-      return $output;
-  }
+$dataProvider->sort->attributeOrders = $this->getGridOrder();
 ```
 
 That's all!
