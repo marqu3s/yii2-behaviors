@@ -25,28 +25,7 @@ use Yii;
  * Then, on yout search() method, set the grid current order using these code:
  *
  * ```
- * $dataProvider->sort->attributeOrders = GenLib::convertGridSort($this->getGridOrder());
- * ```
- *
- * The order criteria is managed as a string in the format used by $_GET: "field1,-field2";
- * So, before applying to the dataProvider, you must convert in array format as required
- * by the "sort->attributeOrders" property. This is the function needed for this:
- * 
- * ```
- *    public static function convertGridSort($criteria) {
- *       $fields = explode(',', $criteria);
- *       $output = [];
- *       foreach ($fields as $field) {
- *           if (substr($field, 0, 1) == '-') {
- *               $field = substr($field, 1);
- *               $order = SORT_DESC;
- *           } else {
- *               $order = SORT_ASC;
- *           }
- *           $output[$field] = $order;
- *       }
- *       return $output;
- *   }
+ * $dataProvider->sort->attributeOrders = $this->getGridOrder();
  * ```
  *
  * @author Peppe Dantini
@@ -82,7 +61,30 @@ class SaveGridOrderBehavior extends MarquesBehavior {
      * Return the grid's current order criteria that was saved before.
      */
     public function getGridOrder() {
-        return Yii::$app->session[$this->sessionVarName];
+        $criteria = Yii::$app->session[$this->sessionVarName];
+        return self::convertGridSort($criteria);
     }
 
+    /**
+     * The order criteria is managed as a string in the format used by $_GET: "field1,-field2";
+     * so, before applying to the dataProvider, it must be converted in array format as required
+     * by the "sort->attributeOrders" property.
+     * @param string $criteria
+     * @return array
+     */    
+    private static function convertGridSort($criteria) {
+        $fields = explode(',', $criteria);
+        $output = [];
+        foreach ($fields as $field) {
+            if (substr($field, 0, 1) == '-') {
+                $field = substr($field, 1);
+                $order = SORT_DESC;
+            } else {
+                $order = SORT_ASC;
+            }
+            $output[$field] = $order;
+        }
+        return $output;
+    }
+    
 }
