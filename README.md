@@ -94,4 +94,27 @@ $dataProvider = new ActiveDataProvider(
 $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
 ```
 
+### SaveGridOrderBehavior
+Saves the Grid's current order criteria in PHP Session.
+
+Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
+
+```php
+public function behaviors()
+{
+    return [
+        'saveGridOrder' =>[
+            'class' => SaveGridOrderBehavior::className(),
+            'sessionVarName' => self::className() . 'GridOrder'
+        ]
+    ];
+}
+```
+
+Then, on yout search() method, set the grid current order using these code:
+
+```php
+$dataProvider->sort->attributeOrders = $this->getGridOrder();
+```
+
 That's all!
