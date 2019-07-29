@@ -36,7 +36,7 @@ class LogActiveRecord extends ActiveRecord
             [['log'], 'string'],
             [['created_at'], 'safe'],
             [['model_class'], 'string', 'max' => 255],
-            [['created_by'], 'string', 'max' => 50],
+            [['created_by'], 'string', 'max' => 100],
         ];
     }
 
