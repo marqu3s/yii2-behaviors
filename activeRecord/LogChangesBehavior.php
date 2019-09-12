@@ -165,8 +165,10 @@ class LogChangesBehavior extends Behavior
     {
         if ($this->modelIdColumnValue === null) {
             $keyColumnValue = $this->owner->getPrimaryKey();
+        } elseif (is_string($this->modelIdColumnValue)) {
+            $keyColumnValue = $this->modelIdColumnValue;
         } else {
-            $keyColumnValue = $this->keyColumnValue($this);
+            $keyColumnValue = call_user_func($this->modelIdColumnValue, $this);
         }
 
         $log = $this->textNewRecord;
