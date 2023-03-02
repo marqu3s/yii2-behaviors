@@ -2,8 +2,6 @@
 
 namespace marqu3s\behaviors\activeRecord\models;
 
-use common\models\rh\FuncionarioNasajon;
-use Yii;
 use yii\db\ActiveRecord;
 
 /**
