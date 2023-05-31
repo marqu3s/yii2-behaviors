@@ -21,6 +21,7 @@ to the require section of your composer.json file.
 ### GRID
 
 #### SaveGridPaginationBehavior
+
 Saves the grid's current page and pageSize in PHP Session so you can restore it later automatically when revisiting the page where the grid is.
 
 Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
@@ -56,11 +57,12 @@ $dataProvider = new ActiveDataProvider(
 
 OR
 
-```php 
+```php
 $dataProvider->pagination->page = $this->getGridPage();
 ```
 
 #### SaveGridFiltersBehavior
+
 Saves the Grid's current filters in PHP Session on every request and use [[loadWithFilters()]] to get the current filters and assign it to the grid.
 
 Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
@@ -97,6 +99,7 @@ $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGrid
 ```
 
 #### SaveGridOrderBehavior
+
 Saves the Grid's current order criteria in PHP Session.
 
 Usage: On the model that will be used to generate the dataProvider that will populate the grid, attach this behavior.
@@ -119,17 +122,18 @@ Then, on yout search() method, set the grid current order using these code:
 $dataProvider->sort->attributeOrders = $this->getGridOrder();
 ```
 
-
-
 ### ActiveRecord
 
 #### LogChangesBehavior
+
 Creates a log everytime a model is created or updated. The log entry contains all changed attributes, their old and new values.
 
 Install: Create the necessary table by using the log_active_record.sql script or by copying the migration script to your migration directory and execute `yii migrate`.
-If you want to use your own table, with your own naming conventions, you can customize the behaviour with your table name and columns. 
+If you want to use your own table, with your own naming conventions, you can customize the behaviour with your table name and columns.
 
 Usage: add it to the behaviors() method of your ActiveRecord model and customize it using it´s attributes.
+
+OPTIONAL: You may implement LogChangesInterface in your ActiveRecord and create a custom `getDeletedRecordText()` that returns a custom log message when a record is deleted.
 
 ```php
 public function behaviors()
@@ -137,7 +141,7 @@ public function behaviors()
      return [
          'LogChanges' => [
              'class' => LogChangesBehavior::class,
-             
+
              // Customization
              'valuesReplacement' => [
                  'active' => [

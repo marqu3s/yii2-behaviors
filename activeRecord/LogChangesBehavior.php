@@ -7,31 +7,40 @@ use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
 /**
- * LogChangesBehavior automatically logs to the specified table the old and new values of a changed ActiveRecord attributes
- * during create and update operations.
+ * LogChangesBehavior automatically logs to the specified table the old and new values
+ * of dirty ActiveRecord attributes when updating a record.
+ *
+ * It can also log when a new record is created and when a record is deleted.
  *
  * For convenience a model for the table containing the logs is provided.
  *
  * Usage: add it to the behaviors() method of your ActiveRecord model and customize it using attributes.
- * For more customization options you can extend this behavior.
+ * Also make sure your model implements LogChangesInterface.
+ *
+ * For more customization options you can extend this behavior with a class of your own.
  *
  * ```php
- * public function behaviors()
+ * class MyActiveRecord extends ActiveRecord implements LogChangesInterface <-- Interface is optional
  * {
- *      return [
- *          'LogChanges' => [
- *              'class' => LogChangesBehavior::class,
- *              'valuesReplacement' => [
- *                  'active' => [
- *                      0 => 'No',
- *                      1 => 'Yes',
+ *      ...
+ *
+ *      public function behaviors()
+ *      {
+ *          return [
+ *              'LogChanges' => [
+ *                  'class' => LogChangesBehavior::class,
+ *                  'valuesReplacement' => [
+ *                      'active' => [
+ *                          0 => 'No',
+ *                          1 => 'Yes',
+ *                      ]
+ *                  ],
+ *                  'currencyAttributes' => [
+ *                      'subtotal', 'total', 'tax'
  *                  ]
  *              ],
- *              'currencyAttributes' => [
- *                  'subtotal', 'total', 'tax'
- *              ]
- *          ],
- *      ];
+ *          ];
+ *      }
  * }
  * ```
  *
@@ -96,6 +105,11 @@ class LogChangesBehavior extends Behavior
     public $textNewRecord = 'New record created.';
 
     /**
+     * @var string text to log when a model is deleted.
+     */
+    public $textDeletedRecord = 'Record deleted.';
+
+    /**
      * @var string text used before old value in the changes description.
      */
     public $textChangedFrom = 'changed from';
@@ -151,6 +165,7 @@ class LogChangesBehavior extends Behavior
         return [
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
+            ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
         ];
     }
 
@@ -171,14 +186,13 @@ class LogChangesBehavior extends Behavior
             $keyColumnValue = call_user_func($this->modelIdColumnValue, $this);
         }
 
-        $log = $this->textNewRecord;
         Yii::$app->db->createCommand()
             ->insert($this->tableName, [
                 $this->modelClassColumn => get_class($this->owner),
                 $this->modelIdColumn => $keyColumnValue,
                 $this->dateTimeColumn => date('Y-m-d H:i:s'),
                 $this->usernameColumn => $this->getUsername(),
-                $this->logColumn => $log,
+                $this->logColumn => $this->textNewRecord,
             ])
             ->execute();
     }
@@ -289,6 +303,30 @@ class LogChangesBehavior extends Behavior
     }
 
     /**
+     * Create a log entry when a model is deleted.
+     *
+     * @param $event
+     *
+     * @throws \yii\db\Exception
+     */
+    public function afterDelete($event)
+    {
+        $log = method_exists($this->owner, 'getDeletedRecordText')
+            ? $this->owner->getDeletedRecordText()
+            : $this->textDeletedRecord;
+
+        Yii::$app->db->createCommand()
+            ->insert($this->tableName, [
+                $this->modelClassColumn => get_class($this->owner),
+                $this->modelIdColumn => $this->owner->getPrimaryKey(),
+                $this->dateTimeColumn => date('Y-m-d H:i:s'),
+                $this->usernameColumn => $this->getUsername(),
+                $this->logColumn => $log,
+            ])
+            ->execute();
+    }
+
+    /**
      * Returs the username of the user that made the create/update operation.
      *
      * @return string
@@ -296,7 +334,7 @@ class LogChangesBehavior extends Behavior
     public function getUsername()
     {
         # check if this is a console app, which has no user.
-        if (get_class(Yii::$app) !== 'yii\console\Applicatio') {
+        if (get_class(Yii::$app) !== 'yii\console\Application') {
             $user = Yii::$app->user->identity->username;
         } else {
             $user = 'Console'; // console app without a user
