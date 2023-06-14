@@ -231,8 +231,8 @@ class LogChangesBehavior extends Behavior
 
                 # Values replacement.
                 if (array_key_exists($attr, $this->valuesReplacement)) {
-                    $oldVal = $this->valuesReplacement[$attr][$oldVal];
-                    $newVal = $this->valuesReplacement[$attr][$newVal];
+                    $oldVal = $this->valuesReplacement[$attr][$oldVal] ?? $oldVal;
+                    $newVal = $this->valuesReplacement[$attr][$newVal] ?? $newVal;
                 }
 
                 # Date formatting.
