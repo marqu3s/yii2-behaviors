@@ -156,7 +156,6 @@ class LogChangesBehavior extends Behavior
      */
     public $ignoredAttributes = [];
 
-
     /**
      * @inheritdoc
      */
@@ -186,7 +185,8 @@ class LogChangesBehavior extends Behavior
             $keyColumnValue = call_user_func($this->modelIdColumnValue, $this);
         }
 
-        Yii::$app->db->createCommand()
+        Yii::$app->db
+            ->createCommand()
             ->insert($this->tableName, [
                 $this->modelClassColumn => get_class($this->owner),
                 $this->modelIdColumn => $keyColumnValue,
@@ -211,7 +211,10 @@ class LogChangesBehavior extends Behavior
 
         # Text before the changed attributes text.
         if (!empty($this->textBeforeChanges)) {
-            if ($this->textBeforeChanges instanceof \Closure || is_array($this->textBeforeChanges)) {
+            if (
+                $this->textBeforeChanges instanceof \Closure ||
+                is_array($this->textBeforeChanges)
+            ) {
                 $log[] = call_user_func($this->textBeforeChanges, $this);
             } else {
                 $log[] = $this->textBeforeChanges;
@@ -224,8 +227,8 @@ class LogChangesBehavior extends Behavior
                 continue;
             }
 
-            $oldVal = (string)$oldVal;
-            $newVal = (string)$event->sender->{$attr};
+            $oldVal = (string) $oldVal;
+            $newVal = (string) $event->sender->{$attr};
             if ($oldVal !== $newVal) {
                 $hasChanges = true;
 
@@ -237,20 +240,24 @@ class LogChangesBehavior extends Behavior
 
                 # Date formatting.
                 if (in_array($attr, $this->dateAttributes)) {
-                    if (false !== strpos($oldVal, '-')) { // mysql
+                    if (false !== strpos($oldVal, '-')) {
+                        // mysql
                         $oldVal = Yii::$app->formatter->asDate($oldVal);
                     }
-                    if (false !== strpos($newVal, '-')) { // mysql
+                    if (false !== strpos($newVal, '-')) {
+                        // mysql
                         $newVal = Yii::$app->formatter->asDate($newVal);
                     }
                 }
 
                 # Date and time formatting.
                 if (in_array($attr, $this->dateTimeAttributes)) {
-                    if (false !== strpos($oldVal, '-')) { // mysql
+                    if (false !== strpos($oldVal, '-')) {
+                        // mysql
                         $oldVal = Yii::$app->formatter->asDatetime($oldVal);
                     }
-                    if (false !== strpos($newVal, '-')) { // mysql
+                    if (false !== strpos($newVal, '-')) {
+                        // mysql
                         $newVal = Yii::$app->formatter->asDatetime($newVal);
                     }
                 }
@@ -261,10 +268,21 @@ class LogChangesBehavior extends Behavior
                     $newVal = Yii::$app->formatter->asCurrency($newVal);
                 }
 
-                $oldVal = self::checkEmpty($oldVal);
-                $newVal = self::checkEmpty($newVal);
+                $oldVal = static::checkEmpty($oldVal);
+                $newVal = static::checkEmpty($newVal);
                 if ($oldVal !== $newVal) {
-                    $log[] = '<span class="label label-default label-changed-value">' . $this->owner->getAttributeLabel($attr) . '</span> ' . $this->textChangedFrom . ' <span class="label label-default labe-changed-value">' . trim($oldVal) . '</span> ' . $this->textChangedTo . ' <span class="label label-default label-changed-value">' . trim($newVal) . '</span>';
+                    $log[] =
+                        '<span class="label label-default label-changed-value">' .
+                        $this->owner->getAttributeLabel($attr) .
+                        '</span> ' .
+                        $this->textChangedFrom .
+                        ' <span class="label label-default labe-changed-value">' .
+                        trim($oldVal) .
+                        '</span> ' .
+                        $this->textChangedTo .
+                        ' <span class="label label-default label-changed-value">' .
+                        trim($newVal) .
+                        '</span>';
                 }
             }
         }
@@ -291,7 +309,8 @@ class LogChangesBehavior extends Behavior
             $keyColumnValue = call_user_func($this->modelIdColumnValue, $this);
         }
 
-        Yii::$app->db->createCommand()
+        Yii::$app->db
+            ->createCommand()
             ->insert($this->tableName, [
                 $this->modelClassColumn => get_class($this->owner),
                 $this->modelIdColumn => $keyColumnValue,
@@ -315,7 +334,8 @@ class LogChangesBehavior extends Behavior
             ? $this->owner->getDeletedRecordText()
             : $this->textDeletedRecord;
 
-        Yii::$app->db->createCommand()
+        Yii::$app->db
+            ->createCommand()
             ->insert($this->tableName, [
                 $this->modelClassColumn => get_class($this->owner),
                 $this->modelIdColumn => $this->owner->getPrimaryKey(),
@@ -353,7 +373,10 @@ class LogChangesBehavior extends Behavior
     public static function checkEmpty($val)
     {
         if (empty($val)) {
-            $val = '<span class="label label-default label-empty-value"><i>' . Yii::t('app', 'empty') . '</i></span>';
+            $val =
+                '<span class="label label-default label-empty-value"><i>' .
+                Yii::t('app', 'empty') .
+                '</i></span>';
         }
 
         return $val;
