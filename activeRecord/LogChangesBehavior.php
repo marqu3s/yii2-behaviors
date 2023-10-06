@@ -5,6 +5,7 @@ namespace marqu3s\behaviors\activeRecord;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
+use yii\helpers\Html;
 
 /**
  * LogChangesBehavior automatically logs to the specified table the old and new values
@@ -124,6 +125,14 @@ class LogChangesBehavior extends Behavior
      */
     public $glue = '<br>';
 
+    public $attributeTokenTag = 'span';
+    public $oldValueTokenTag = 'span';
+    public $newValueTokenTag = 'span';
+
+    public $attributeTokenCssClass = 'label label-default label-changed-value';
+    public $oldValueTokenCssClass = 'label label-default label-changed-value';
+    public $newValueTokenCssClass = 'label label-default label-changed-value';
+
     /**
      * @var array text replacement mapping.
      *
@@ -150,6 +159,8 @@ class LogChangesBehavior extends Behavior
      * @var array relation of currency attributes.
      */
     public $currencyAttributes = [];
+
+    public $htmlAttributes = [];
 
     /**
      * @var array relation of ignored attributes. They will not apear on the logs.
@@ -268,21 +279,46 @@ class LogChangesBehavior extends Behavior
                     $newVal = Yii::$app->formatter->asCurrency($newVal);
                 }
 
+                if (in_array($attr, $this->htmlAttributes)) {
+                    $oldVal = strip_tags($oldVal, '<p>, <br>');
+                    $oldVal = str_replace(['<p>', '</p>'], ['', '<br>'], $oldVal);
+                    $newVal = strip_tags($newVal, '<p>, <br>');
+                    $newVal = str_replace(['<p>', '</p>'], ['', '<br>'], $newVal);
+                }
+
                 $oldVal = static::checkEmpty($oldVal);
                 $newVal = static::checkEmpty($newVal);
+
                 if ($oldVal !== $newVal) {
-                    $log[] =
-                        '<span class="label label-default label-changed-value">' .
-                        $this->owner->getAttributeLabel($attr) .
-                        '</span> ' .
-                        $this->textChangedFrom .
-                        ' <span class="label label-default labe-changed-value">' .
-                        trim($oldVal) .
-                        '</span> ' .
-                        $this->textChangedTo .
-                        ' <span class="label label-default label-changed-value">' .
-                        trim($newVal) .
-                        '</span>';
+                    $attrToken = Html::tag(
+                        $this->attributeTokenTag,
+                        $this->owner->getAttributeLabel($attr),
+                        [
+                            'class' => $this->attributeTokenCssClass,
+                        ]
+                    );
+
+                    # Force div for html attributes for better presentation.
+                    $tag = $this->oldValueTokenTag;
+                    $cssClass = $this->oldValueTokenCssClass;
+                    if (in_array($attr, $this->htmlAttributes)) {
+                        $tag = 'div';
+                        $cssClass = 'div-changed-value';
+                    }
+
+                    $chgFrom = Html::tag($tag, trim($oldVal), ['class' => $cssClass]);
+
+                    # Force div for html attributes for better presentation.
+                    $tag = $this->newValueTokenTag;
+                    $cssClass = $this->newValueTokenCssClass;
+                    if (in_array($attr, $this->htmlAttributes)) {
+                        $tag = 'div';
+                        $cssClass = 'div-changed-value';
+                    }
+
+                    $chgTo = Html::tag($tag, trim($newVal), ['class' => $cssClass]);
+
+                    $log[] = "$attrToken {$this->textChangedFrom} $chgFrom {$this->textChangedTo} $chgTo";
                 }
             }
         }
