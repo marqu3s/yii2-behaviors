@@ -3,6 +3,8 @@
 namespace marqu3s\behaviors;
 
 use Yii;
+use yii\data\ActiveDataProvider;
+use yii\db\BaseActiveRecord;
 
 /**
  * Saves the Grid's current filters in PHP Session on every request
@@ -68,7 +70,7 @@ class SaveGridFiltersBehavior extends MarquesBehavior
     public function events()
     {
         return [
-            \yii\db\BaseActiveRecord::EVENT_INIT => [$this, 'saveGridFilters'],
+            BaseActiveRecord::EVENT_INIT => [$this, 'saveGridFilters'],
         ];
     }
 
@@ -85,8 +87,10 @@ class SaveGridFiltersBehavior extends MarquesBehavior
 
         $params = Yii::$app->request->queryParams;
         if (isset($params[$this->modelShortClassName])) {
-            # Check if the filter values changed
-            $this->filtersChanged = serialize(Yii::$app->session[$this->sessionVarName]) !== serialize($params[$this->modelShortClassName]) ? true : false;
+            # Check if the filter values have changed.
+            $this->filtersChanged =
+                serialize(Yii::$app->session[$this->sessionVarName]) !==
+                serialize($params[$this->modelShortClassName]);
             Yii::$app->session[$this->sessionVarName] = $params[$this->modelShortClassName];
         }
     }
@@ -96,9 +100,10 @@ class SaveGridFiltersBehavior extends MarquesBehavior
      * If new filter values are detected in $params, the grid pagination is reset to page 1 (index 0).
      * Thats why we need the $dataProvider here.
      *
-     * @param $params array
-     * @param $dataProvider \yii\data\ActiveDataProvider
-     * @return \yii\data\ActiveDataProvider
+     * @param array $params
+     * @param ActiveDataProvider $dataProvider
+     *
+     * @return ActiveDataProvider
      */
     public function loadWithFilters($params, $dataProvider)
     {
@@ -115,15 +120,27 @@ class SaveGridFiltersBehavior extends MarquesBehavior
                 $behaviors = $this->owner->getBehaviors();
                 foreach ($behaviors as $behavior) {
                     if (get_class($behavior) == 'marqu3s\behaviors\SaveGridPaginationBehavior') {
-                        Yii::$app->session[$behavior->sessionVarName] = $dataProvider->pagination->page;
+                        Yii::$app->session[$behavior->sessionVarName] =
+                            $dataProvider->pagination->page;
                         break;
                     }
                 }
             }
         } else {
-            $this->owner->load([$this->modelShortClassName => Yii::$app->session[$this->sessionVarName]]);
+            $this->owner->load([
+                $this->modelShortClassName => Yii::$app->session[$this->sessionVarName],
+            ]);
         }
 
         return $dataProvider;
+    }
+
+    /**
+     * Resets the filters stored in session.
+     */
+    public function resetGridFilters()
+    {
+        Yii::$app->session[$this->sessionVarName] = null;
+        $this->filtersChanged = true;
     }
 }
