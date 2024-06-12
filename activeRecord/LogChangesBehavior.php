@@ -243,83 +243,40 @@ class LogChangesBehavior extends Behavior
             if ($oldVal !== $newVal) {
                 $hasChanges = true;
 
-                # Values replacement.
-                if (array_key_exists($attr, $this->valuesReplacement)) {
-                    $oldVal = $this->valuesReplacement[$attr][$oldVal] ?? $oldVal;
-                    $newVal = $this->valuesReplacement[$attr][$newVal] ?? $newVal;
-                }
-
-                # Date formatting.
-                if (in_array($attr, $this->dateAttributes)) {
-                    if (false !== strpos($oldVal, '-')) {
-                        // mysql
-                        $oldVal = Yii::$app->formatter->asDate($oldVal);
-                    }
-                    if (false !== strpos($newVal, '-')) {
-                        // mysql
-                        $newVal = Yii::$app->formatter->asDate($newVal);
-                    }
-                }
-
-                # Date and time formatting.
-                if (in_array($attr, $this->dateTimeAttributes)) {
-                    if (false !== strpos($oldVal, '-')) {
-                        // mysql
-                        $oldVal = Yii::$app->formatter->asDatetime($oldVal);
-                    }
-                    if (false !== strpos($newVal, '-')) {
-                        // mysql
-                        $newVal = Yii::$app->formatter->asDatetime($newVal);
-                    }
-                }
-
-                # Currency formatting.
-                if (in_array($attr, $this->currencyAttributes)) {
-                    $oldVal = Yii::$app->formatter->asCurrency($oldVal);
-                    $newVal = Yii::$app->formatter->asCurrency($newVal);
-                }
-
-                if (in_array($attr, $this->htmlAttributes)) {
-                    $oldVal = strip_tags($oldVal, '<p>, <br>');
-                    $oldVal = str_replace(['<p>', '</p>'], ['', '<br>'], $oldVal);
-                    $newVal = strip_tags($newVal, '<p>, <br>');
-                    $newVal = str_replace(['<p>', '</p>'], ['', '<br>'], $newVal);
-                }
+                list($oldVal, $newVal) = $this->getAttributeLogValues($attr, $oldVal, $newVal);
 
                 $oldVal = static::checkEmpty($oldVal);
                 $newVal = static::checkEmpty($newVal);
 
-                if ($oldVal !== $newVal) {
-                    $attrToken = Html::tag(
-                        $this->attributeTokenTag,
-                        $this->owner->getAttributeLabel($attr),
-                        [
-                            'class' => $this->attributeTokenCssClass,
-                        ]
-                    );
+                $attrToken = Html::tag(
+                    $this->attributeTokenTag,
+                    $this->owner->getAttributeLabel($attr),
+                    [
+                        'class' => $this->attributeTokenCssClass,
+                    ]
+                );
 
-                    # Force div for html attributes for better presentation.
-                    $tag = $this->oldValueTokenTag;
-                    $cssClass = $this->oldValueTokenCssClass;
-                    if (in_array($attr, $this->htmlAttributes)) {
-                        $tag = 'div';
-                        $cssClass = 'div-changed-value';
-                    }
-
-                    $chgFrom = Html::tag($tag, trim($oldVal), ['class' => $cssClass]);
-
-                    # Force div for html attributes for better presentation.
-                    $tag = $this->newValueTokenTag;
-                    $cssClass = $this->newValueTokenCssClass;
-                    if (in_array($attr, $this->htmlAttributes)) {
-                        $tag = 'div';
-                        $cssClass = 'div-changed-value';
-                    }
-
-                    $chgTo = Html::tag($tag, trim($newVal), ['class' => $cssClass]);
-
-                    $log[] = "$attrToken {$this->textChangedFrom} $chgFrom {$this->textChangedTo} $chgTo";
+                # Force div for html attributes for better presentation.
+                $tag = $this->oldValueTokenTag;
+                $cssClass = $this->oldValueTokenCssClass;
+                if (in_array($attr, $this->htmlAttributes)) {
+                    $tag = 'div';
+                    $cssClass = 'div-changed-value';
                 }
+
+                $chgFrom = Html::tag($tag, trim($oldVal), ['class' => $cssClass]);
+
+                # Force div for html attributes for better presentation.
+                $tag = $this->newValueTokenTag;
+                $cssClass = $this->newValueTokenCssClass;
+                if (in_array($attr, $this->htmlAttributes)) {
+                    $tag = 'div';
+                    $cssClass = 'div-changed-value';
+                }
+
+                $chgTo = Html::tag($tag, trim($newVal), ['class' => $cssClass]);
+
+                $log[] = "$attrToken {$this->textChangedFrom} $chgFrom {$this->textChangedTo} $chgTo";
             }
         }
 
@@ -380,6 +337,63 @@ class LogChangesBehavior extends Behavior
                 $this->logColumn => $log,
             ])
             ->execute();
+    }
+
+    /**
+     * Returns the old and new values of an attribute, considering the replacements that should be made.
+     *
+     * @param $attr the attribute to get the values from.
+     * @param $oldVal the old value.
+     * @param $newVal the new value.
+     *
+     * @return array
+     */
+    public function getAttributeLogValues($attr, $oldVal, $newVal)
+    {
+        # Values replacement.
+        if (array_key_exists($attr, $this->valuesReplacement)) {
+            $oldVal = $this->valuesReplacement[$attr][$oldVal] ?? $oldVal;
+            $newVal = $this->valuesReplacement[$attr][$newVal] ?? $newVal;
+        }
+
+        # Date formatting.
+        if (in_array($attr, $this->dateAttributes)) {
+            if (false !== strpos($oldVal, '-')) {
+                // mysql
+                $oldVal = Yii::$app->formatter->asDate($oldVal);
+            }
+            if (false !== strpos($newVal, '-')) {
+                // mysql
+                $newVal = Yii::$app->formatter->asDate($newVal);
+            }
+        }
+
+        # Date and time formatting.
+        if (in_array($attr, $this->dateTimeAttributes)) {
+            if (false !== strpos($oldVal, '-')) {
+                // mysql
+                $oldVal = Yii::$app->formatter->asDatetime($oldVal);
+            }
+            if (false !== strpos($newVal, '-')) {
+                // mysql
+                $newVal = Yii::$app->formatter->asDatetime($newVal);
+            }
+        }
+
+        # Currency formatting.
+        if (in_array($attr, $this->currencyAttributes)) {
+            $oldVal = Yii::$app->formatter->asCurrency($oldVal);
+            $newVal = Yii::$app->formatter->asCurrency($newVal);
+        }
+
+        if (in_array($attr, $this->htmlAttributes)) {
+            $oldVal = strip_tags($oldVal, '<p>, <br>');
+            $oldVal = str_replace(['<p>', '</p>'], ['', '<br>'], $oldVal);
+            $newVal = strip_tags($newVal, '<p>, <br>');
+            $newVal = str_replace(['<p>', '</p>'], ['', '<br>'], $newVal);
+        }
+
+        return [$oldVal, $newVal];
     }
 
     /**
