@@ -21,7 +21,7 @@ use Yii;
  *     ];
  * }
  * ```
- * 
+ *
  * Then, on yout search() method, set the grid current order using these code:
  *
  * ```
@@ -30,15 +30,16 @@ use Yii;
  *
  * @author Peppe Dantini
  */
-class SaveGridOrderBehavior extends MarquesBehavior {
-
+class SaveGridOrderBehavior extends MarquesBehavior
+{
     /** @var string default $_GET parameter name */
     public $getVarName = 'sort';
 
     /**
      * @inheritdoc
      */
-    public function events() {
+    public function events()
+    {
         return [
             \yii\db\BaseActiveRecord::EVENT_INIT => [$this, 'saveGridOrder'],
         ];
@@ -47,7 +48,8 @@ class SaveGridOrderBehavior extends MarquesBehavior {
     /**
      * Saves the grid's current order criteria.
      */
-    public function saveGridOrder() {
+    public function saveGridOrder()
+    {
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
             Yii::$app->session[$this->sessionVarName] = '';
         }
@@ -60,7 +62,12 @@ class SaveGridOrderBehavior extends MarquesBehavior {
     /**
      * Return the grid's current order criteria that was saved before.
      */
-    public function getGridOrder() {
+    public function getGridOrder()
+    {
+        if (Yii::$app->request->get($this->getVarName) !== null) {
+            $this->saveGridOrder();
+        }
+
         $criteria = Yii::$app->session[$this->sessionVarName];
         return self::convertGridSort($criteria);
     }
@@ -71,8 +78,9 @@ class SaveGridOrderBehavior extends MarquesBehavior {
      * by the "sort->attributeOrders" property.
      * @param string $criteria
      * @return array
-     */    
-    private static function convertGridSort($criteria) {
+     */
+    private static function convertGridSort($criteria)
+    {
         $fields = explode(',', $criteria);
         $output = [];
         foreach ($fields as $field) {
@@ -84,7 +92,7 @@ class SaveGridOrderBehavior extends MarquesBehavior {
             }
             $output[$field] = $order;
         }
+
         return $output;
     }
-    
 }
