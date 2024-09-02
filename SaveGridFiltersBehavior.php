@@ -85,7 +85,11 @@ class SaveGridFiltersBehavior extends MarquesBehavior
             Yii::$app->session[$this->sessionVarName] = $this->owner->attributes;
         }
 
-        $params = Yii::$app->request->queryParams;
+        $params =
+            $this->requestMethod === 'GET'
+                ? Yii::$app->request->queryParams
+                : Yii::$app->request->post();
+
         if (isset($params[$this->modelShortClassName])) {
             # Check if the filter values have changed.
             $this->filtersChanged =
