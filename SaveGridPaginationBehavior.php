@@ -62,7 +62,6 @@ class SaveGridPaginationBehavior extends MarquesBehavior
     /** @var string default $_SESSION variable name to store the quantity of items per page. */
     public $sessionPageSizeName = '';
 
-
     /**
      * @inheritdoc
      */
@@ -94,21 +93,33 @@ class SaveGridPaginationBehavior extends MarquesBehavior
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
             Yii::$app->session[$this->sessionVarName] = 0;
         }
-        if (!isset(Yii::$app->session[$this->sessionPageSizeName]))
+        if (!isset(Yii::$app->session[$this->sessionPageSizeName])) {
             Yii::$app->session[$this->sessionPageSizeName] = 10;
+        }
 
         if (Yii::$app->request->get($this->getVarName) !== null) {
-            Yii::$app->session[$this->sessionVarName] = (int)Yii::$app->request->get($this->getVarName) - 1;
+            Yii::$app->session[$this->sessionVarName] =
+                (int) Yii::$app->request->get($this->getVarName) - 1;
         }
-        if (Yii::$app->request->get($this->getPageSizeName) !== null)
-            Yii::$app->session[$this->sessionPageSizeName] = (int)Yii::$app->request->get($this->getPageSizeName);
+        if (Yii::$app->request->get($this->getPageSizeName) !== null) {
+            Yii::$app->session[$this->sessionPageSizeName] = (int) Yii::$app->request->get(
+                $this->getPageSizeName
+            );
+        }
     }
 
     /**
-     * Return the grid's current active page index that was saved before.
+     * Return the grid's current active page index that was saved before or the page being requested.
      */
     public function getGridPage()
     {
+        $page = Yii::$app->request->get($this->getVarName);
+        if ($page !== null) {
+            $page = (int) $page - 1;
+            Yii::$app->session[$this->sessionVarName] = $page;
+            return $page;
+        }
+
         return Yii::$app->session[$this->sessionVarName];
     }
 
@@ -119,5 +130,4 @@ class SaveGridPaginationBehavior extends MarquesBehavior
     {
         return Yii::$app->session[$this->sessionPageSizeName];
     }
-
 }
