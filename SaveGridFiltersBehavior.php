@@ -83,6 +83,7 @@ class SaveGridFiltersBehavior extends MarquesBehavior
 
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
             Yii::$app->session[$this->sessionVarName] = $this->owner->attributes;
+            return;
         }
 
         $params =
@@ -92,9 +93,9 @@ class SaveGridFiltersBehavior extends MarquesBehavior
 
         if (isset($params[$this->modelShortClassName])) {
             # Check if the filter values have changed.
-            $this->filtersChanged =
-                serialize(Yii::$app->session[$this->sessionVarName]) !==
-                serialize($params[$this->modelShortClassName]);
+            $arr1 = $params[$this->modelShortClassName];
+            $arr2 = Yii::$app->session[$this->sessionVarName];
+            $this->filtersChanged = $arr1 != $arr2;
             Yii::$app->session[$this->sessionVarName] = $params[$this->modelShortClassName];
         }
     }
