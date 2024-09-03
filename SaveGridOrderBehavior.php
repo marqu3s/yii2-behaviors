@@ -35,6 +35,9 @@ class SaveGridOrderBehavior extends MarquesBehavior
     /** @var string default $_GET parameter name */
     public $getVarName = 'sort';
 
+    /** @var string default order when there is no order in session yet*/
+    public $defaultOrder = 'id';
+
     /**
      * @inheritdoc
      */
@@ -51,7 +54,7 @@ class SaveGridOrderBehavior extends MarquesBehavior
     public function saveGridOrder()
     {
         if (!isset(Yii::$app->session[$this->sessionVarName])) {
-            Yii::$app->session[$this->sessionVarName] = '';
+            Yii::$app->session[$this->sessionVarName] = $this->defaultOrder;
         }
 
         if (Yii::$app->request->get($this->getVarName) !== null) {
