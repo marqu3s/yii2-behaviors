@@ -119,6 +119,7 @@ class SaveGridFiltersBehavior extends MarquesBehavior
 
             if ($this->filtersChanged) {
                 $dataProvider->pagination->page = 0; // reset pagination to first page when applying new filters
+                $dataProvider->refresh(); // refresh the data provider.
 
                 # Check if owner is using SaveGridPaginationBehavior.
                 # If it is, reset the current page stored in session by SaveGridPaginationBehavior,
