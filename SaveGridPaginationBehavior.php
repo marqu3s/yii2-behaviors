@@ -9,42 +9,56 @@ use Yii;
  * and use [[getPage()]] to get the current page and assign it
  * to the Pagination configuration.
  *
- * Saves also the pageSize
+ * Saves also the pageSize.
  *
  * Usage: On the model that will be used to generate the dataProvider
  * that will populate the grid, attach this behavior.
+ *
+ * NOTE: If using together with [[SaveGridFiltersBehavior]], make sure to load this
+ * behavior before [[SaveGridFiltersBehavior]].
  *
  * ```
  * public function behaviors()
  * {
  *     return [
- *         'saveGridPage' =>[
+ *         // load saveGridPage before saveGridFilters.
+ *         'saveGridPage' => [
  *             'class' => SaveGridPaginationBehavior::className(),
  *             'sessionVarName' => self::className() . 'GridPage'
  *             'sessionPageSizeName' => self::className() . 'GridPageSize'
- *         ]
+ *         ],
+ *         'saveGridFilters' => [
+ *             'class' => SaveGridFiltersBehavior::class,
+ *             'sessionVarName' => self::class . 'GridFilters',
+ *         ],
  *     ];
  * }
  * ```
  *
- * Then, on yout search() method, set the grid current page using one of these:
+ * Then, on your search() method, set the grid current page like this
+ * after applying all possible filters:
  *
  * ```
  * $dataProvider = new ActiveDataProvider(
  *     [
  *         'query' => $query,
  *         'sort' => ...,
- *         'pagination' => [
- *             'page' => $this->getGridPage(),
- *             'pageSize' => $this->getGridPageSize(),
- *             ...
- *         ]
  *     ]
  * );
  *
- * OR
+ * $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
  *
+ * ... apply all other filters here ...
+ *
+ * // Configure pagination settings here. This will ensure an accurate total count.
+ * // DO NOT configure these when setting the new ActiveDataProvider
+ * // as it will count the total number of itens before the filters are applied.
+ * $dataProvider->pagination->totalCount = (clone $query)->count();
+ * $dataProvider->pagination->pageSize = 50;
+ * $dataProvider->pagination->pageParam = $this->gridPageVarName;
  * $dataProvider->pagination->page = $this->getGridPage();
+ *
+ * return $dataProvider;
  * ```
  *
  * That's all!
@@ -113,12 +127,12 @@ class SaveGridPaginationBehavior extends MarquesBehavior
      */
     public function getGridPage()
     {
-        $page = Yii::$app->request->get($this->getVarName);
-        if ($page !== null) {
-            $page = (int) $page - 1;
-            Yii::$app->session[$this->sessionVarName] = $page;
-            return $page;
-        }
+        // $page = Yii::$app->request->get($this->getVarName);
+        // if ($page !== null) {
+        //     $page = (int) $page - 1;
+        //     Yii::$app->session[$this->sessionVarName] = $page;
+        //     return $page;
+        // }
 
         return Yii::$app->session[$this->sessionVarName];
     }
