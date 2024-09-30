@@ -26,22 +26,21 @@ use yii\db\BaseActiveRecord;
  * }
  * ```
  *
- * Then, on yout search() method, replace $this->load() by $dataProvider = $this->loadWithFilters($params, $dataProvider):
+ * Then, on your search() method, replace $this->load() by $dataProvider = $this->loadWithFilters($params, $dataProvider):
  *
  * ```
  * $dataProvider = new ActiveDataProvider(
  *     [
  *         'query' => $query,
  *         'sort' => ...,
- *         'pagination' => [
- *             'page' => $this->getGridPage(), // From SaveGridPaginationBehavior
- *             ...
- *         ]
  *     ]
  * );
+ *
  * //$this->load($params); // <-- Replace or comment this
  * $dataProvider = $this->loadWithFilters($params, $dataProvider); // From SaveGridFiltersBehavior
  * ```
+ *
+ * You may combine this behavior with [[SaveGridPaginationBehavior]].
  *
  * That's all!
  *
@@ -125,8 +124,8 @@ class SaveGridFiltersBehavior extends MarquesBehavior
                 $behaviors = $this->owner->getBehaviors();
                 foreach ($behaviors as $behavior) {
                     if (get_class($behavior) == 'marqu3s\behaviors\SaveGridPaginationBehavior') {
-                        Yii::$app->session[$behavior->sessionVarName] =
-                            $dataProvider->pagination->page;
+                        $_SESSION[$behavior->sessionVarName] = $dataProvider->pagination->page;
+                        $_GET[$behavior->getVarName] = $dataProvider->pagination->page;
                         break;
                     }
                 }
