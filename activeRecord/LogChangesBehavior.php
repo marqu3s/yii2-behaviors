@@ -34,7 +34,10 @@ use yii\helpers\Html;
  *                      'active' => [
  *                          0 => 'No',
  *                          1 => 'Yes',
- *                      ]
+ *                      ],
+ *                      'id_user' => function () {
+ *                          return ArrayHelper::map(User::find()->all(), 'id', 'name');
+ *                      },
  *                  ],
  *                  'currencyAttributes' => [
  *                      'subtotal', 'total', 'tax'
@@ -135,13 +138,23 @@ class LogChangesBehavior extends Behavior
 
     /**
      * @var array text replacement mapping.
+     * Can be declared as a closure that don't accept any parameter. It must return an array where
+     * keys are the value to be replaced and values are the value to replace.
+     * Closures are executed only when the text of the log is generated.
      *
-     * Format: attr => ['value' => 'string']
-     * Example:
+     * Format: attr => ['old value' => 'new value'] | Closure
+     * Examples:
+     *
      * 'active' => [
      *      '0' => 'No',
      *      '1' => 'Yes',
      * ],
+     *
+     * 'id_user' => function () {
+     *      return ArrayHelper::map(User::find()->all(), 'id', 'name');
+     * },
+     *
+     * In the last example instead of loggin the user ID, the user name will be logged.
      */
     public $valuesReplacement = [];
 
@@ -352,8 +365,15 @@ class LogChangesBehavior extends Behavior
     {
         # Values replacement.
         if (array_key_exists($attr, $this->valuesReplacement)) {
-            $oldVal = $this->valuesReplacement[$attr][$oldVal] ?? $oldVal;
-            $newVal = $this->valuesReplacement[$attr][$newVal] ?? $newVal;
+            # check if the value is a callback function
+            if ($this->valuesReplacement[$attr] instanceof \Closure) {
+                $resultado = call_user_func($this->valuesReplacement[$attr]);
+                $oldVal = $resultado[$oldVal] ?? $oldVal;
+                $newVal = $resultado[$newVal] ?? $newVal;
+            } else {
+                $oldVal = $this->valuesReplacement[$attr][$oldVal] ?? $oldVal;
+                $newVal = $this->valuesReplacement[$attr][$newVal] ?? $newVal;
+            }
         }
 
         # Date formatting.
